@@ -5,12 +5,11 @@ library(gridExtra)
 library(ggthemes)
 library(ggThemeAssist)
 library(tidyr)
-library(git2r)
 library(formatR)
 library(scales)
 library(grid)
 library(extrafont)
-library(ggiraph)
+library(stringr)
 
 #All data is from https://data.fis-ski.com/
 
@@ -29,14 +28,32 @@ theme <- theme(plot.background = element_rect(fill = "gray97"), panel.grid.major
   theme(axis.text=element_text(size=16))  
 
 #Load data 
-ergebnisse <- read.csv("~/Google Drive/dStd.at/fis-ski/ergebnisse.csv")
-uebersicht <- read.csv("~/Google Drive/dStd.at/fis-ski/subpages.csv")
+ergebnisse <- read.csv("ergebnisse.csv")
+uebersicht <- read.csv("subpages.csv")
+
+uebersicht$eventid <- gsub("http://data.fis-ski.com/dynamic/event-details.html?event_id=", "$", uebersicht)
 
 #Merge data
-uebersicht$eventid <- sub("http://data.fis-ski.com/dynamic/event-details.html?event_id=", "", uebersicht)
+ergebnisse$athletid <- str_extract_all(ergebnisse$athleturl,"\\(?[,0-9]+\\)?")
+ergebnisse$rennid <- str_extract_all(ergebnisse$raceurl,"\\(?[,0-9]+\\)?")
+uebersicht$rennid <- str_extract_all(uebersicht$url,"\\(?[,0-9]+\\)?")
 
-&cal_suchsector=AL
+#Top Rows for testing
+ergebnisse_top <- head(ergebnisse, 10)
+as.vector(ergebnisse_top$athletid)
+unlist(ergebnisse_top$url)
+unlist(ergebnisse_top$url, recursive = TRUE)
 
-data <- merge(ergebnisse, uebersicht, x.by="raceurl", y.by="url")
+as.numeric(c(ergebnisse$rennid, ergebnisse$athletid, uebersicht$rennid)
+unlist((ergebnisse_top$url))
+as.numeric(ergebnisse_top$url)
+ergebnisse_top <- as.matrix(ergebnisse_top)
+
+
+
+a <- (1:120)
+b <- a[seq(1, length(a),6)]
+
+
 
 
