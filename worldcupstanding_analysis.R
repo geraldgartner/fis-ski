@@ -154,7 +154,7 @@ ggsave("worldcupp.png", width=500, height=250, units="mm")
 
 abfahrttop3 <- subset(data, downhill_rank =="1" | downhill_rank =="2" | downhill_rank =="3")
 abfahrttop3 <- select(abfahrttop3, year, name, nation, gender, downhill_rank)
-setnames(abfahrttop3, "downhill_rank","rank")
+abfahrttop3 <- setnames(abfahrttop3, "downhill_rank","rank")
 write.csv(abfahrttop3, file="abfahrtsweltcup.csv")
 
 
@@ -332,16 +332,18 @@ datanottopdamen <- subset(datanottop3, nation=="AUT", gender=="Damen", "year"=="
 
 #datanottop3 <- which(datanottop3$giantslalom_rank == "1" | datanottop3$giantslalom_rank == "2" | datanottop3$giantslalom_rank == "3" | datanottop3$wc_all_rank == "1" | datanottop3$wc_all_rank == "2" | datanottop3$wc_all_rank == "3" | datanottop3$sl_ce_rank  == "1" |  datanottop3$sl_ce_rank  == "2"| datanottop3$sl_ce_rank  == "3" | datanottop3$giantslalom_rank == "1" | datanottop3$giantslalom_rank == "2" | datanottop3$giantslalom_rank == "3" | datanottop3$downhill_rank  == "1" | datanottop3$downhill_rank  == "2" |  datanottop3$downhill_rank  == "3")
 
-datanottopKristallkugelcount <- subset(datanottop3, nation =="AUT")
+datanottopKristallkugelcount <- subset(datanottop3, nation == "AUT" & gender == "Damen")
 datanottopKristallkugelcount <- datanottopKristallkugelcount %>%
                                     gather(key=disz, value=position, giantslalom_rank:downhill_rank)
 datanottopKristallkugelcount <- subset(datanottopKristallkugelcount, position <4)
 datanottopKristallkugelcountdone <- datanottopKristallkugelcount %>%
-  group_by(factor(position)) %>%
-  count(cyl, gear)
-  summarise(position = count(position))
+  group_by(disz, position) %>%
+  summarise(count = sum(position))
 
 xyz <- subset(datanottop3, nation == "AUT", gender == "Damen")
+
+checkrtl <- subset(datanottopKristallkugelcount, position =="1" & disz == "giantslalom_rank")
+checkslalom <- subset(datanottopKristallkugelcount, position =="1" & disz == "sl_ce_rank")
 
 
 
