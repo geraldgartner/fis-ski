@@ -125,7 +125,29 @@ print(alltitles)
 
 write.csv(wctop3, file = "gesamtweltcup.csv", row.names = TRUE)
 ####################################
+#####################
 
+worldcup <- select(data, year, name, nation, gender, wc_all_rank)
+worldcup <- subset(worldcup, wc_all_rank == "1" | wc_all_rank =="2" | wc_all_rank =="3")
+setnames(worldcup, "wc_all_rank","rank")
+write.csv(worldcup, file="worldcup.csv")
+
+unique(slalomtop$nation)
+
+worldcup$rank <- as.factor(worldcup$rank)
+
+worldcupp <- ggplot(worldcup, aes(x=year, y=rank, fill=nation))+
+  geom_tile(stat="identity", color="white")+
+  facet_wrap(~gender)+
+  theme(legend.position="none")+
+  scale_fill_manual(values = nationen)+
+  scale_y_discrete(limits=c("3","2","1"),
+                   labels=c("3.Platz", "2. Platz", "1. Platz"))+
+  ggtitle("Platzierungen der ÖSV-Athleten im Gesamtweltcup")+
+  
+
+print(worldcupp)
+ggsave("worldcupp.png", width=500, height=250, units="mm")
 
 
 #Prepare dataframes for export
@@ -167,7 +189,7 @@ write.csv(rtltop, file="riesentorlauf.csv")
 rtltop$rank <- as.factor(rtltop$rank)
 rtltop <- ggplot(rtltop, aes(x=year, y=rank, fill=nation))+
   geom_tile(stat="identity", color="white")+
-  facet_wrap(~gender)+
+  facet_wrap(~gender, ncol=1)+
   theme_fivethirtyeight()+
   scale_fill_manual(values = nationen)+
   scale_y_discrete(limits=c("3","2","1"),
@@ -202,6 +224,14 @@ slalomtop <- ggplot(slalomtop, aes(x=year, y=rank, fill=nation))+
 print(slalomtop)
 ggsave("slalomtop.pdf", width=50, height=25, units="cm")
 
+allwcs <- grid.arrange(
+  slalomtop + theme(legend.position="none"),
+  rtltop + theme(legend.position="none"), 
+  abfahrt + theme(legend.position="none"), ncol = 1)
+allwcs
+
+ggsave("allwcs.png", width=17, height=19, unit="cm")
+ 
 ##########################################################
 
 #Wie sehr hängt AT von Marcel Hirscher in den technischen Disziplinen ab?
@@ -290,4 +320,28 @@ print(totalrtlp)
 
 
 multiplot(totalslp, totalrtlp, cols=1)
-ggall <- grid.arrange(totalslp, totalrtlp, ncol=1)
+ggall <- grid.arrange(totalslp + theme(legend.position="none") + theme_fivethirtyeight(),
+                      totalrtlp + theme(legend.position="none") + theme_fivethirtyeight(), ncol=1)
+ggsave("ggal.png", width=940, height=583, units="mm")
+
+##Wie viele Saisonen gibt es, in denen Österreich keinen Top3-Platz eingefahren hat
+datanottop3 <- select(data, year, gender, nation, name, giantslalom_rank, wc_all_rank, sl_ce_rank, downhill_rank)
+datanottopherren <- subset(datanottop3, gender=="Herren", "year"=="1986" | "year" == "1992")
+datanottopdamen <- subset(datanottop3, nation=="AUT", gender=="Damen", "year"=="1982" | "year" == "1985" | "year" == "1987")
+#datanottop3 <- grep("^1$", datanottop3$giantslalom_rank, value = TRUE)
+
+#datanottop3 <- which(datanottop3$giantslalom_rank == "1" | datanottop3$giantslalom_rank == "2" | datanottop3$giantslalom_rank == "3" | datanottop3$wc_all_rank == "1" | datanottop3$wc_all_rank == "2" | datanottop3$wc_all_rank == "3" | datanottop3$sl_ce_rank  == "1" |  datanottop3$sl_ce_rank  == "2"| datanottop3$sl_ce_rank  == "3" | datanottop3$giantslalom_rank == "1" | datanottop3$giantslalom_rank == "2" | datanottop3$giantslalom_rank == "3" | datanottop3$downhill_rank  == "1" | datanottop3$downhill_rank  == "2" |  datanottop3$downhill_rank  == "3")
+
+datanottopKristallkugelcount <- subset(datanottop3, nation =="AUT")
+datanottopKristallkugelcount <- datanottopKristallkugelcount %>%
+                                    gather(key=disz, value=position, giantslalom_rank:downhill_rank)
+datanottopKristallkugelcount <- subset(datanottopKristallkugelcount, position <4)
+datanottopKristallkugelcountdone <- datanottopKristallkugelcount %>%
+  group_by(factor(position)) %>%
+  count(cyl, gear)
+  summarise(position = count(position))
+
+xyz <- subset(datanottop3, nation == "AUT", gender == "Damen")
+
+
+
